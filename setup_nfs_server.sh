@@ -57,9 +57,10 @@ if [ "$OS" = "FreeBSD" ]; then
     } > /etc/exports
     
     # Enable and restart services
-    sysrc nfs_server_enable=YES
-    sysrc mountd_enable=YES
-    sysrc rpcbind_enable=YES
+    sysrc nfs_server_enable="YES"
+    sysrc nfsv4_server_enable="YES"
+    sysrc mountd_enable="YES"
+    sysrc rpcbind_enable="YES"
     service rpcbind restart
     service mountd restart
     service nfsd restart
