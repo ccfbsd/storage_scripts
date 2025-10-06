@@ -59,6 +59,7 @@ if [ "$OS" = "FreeBSD" ]; then
     # Enable and restart services
     sysrc nfs_server_enable="YES"
     sysrc nfsv4_server_enable="YES"
+    sysrc nfs_server_flags="-t -n 8"
     sysrc mountd_enable="YES"
     sysrc rpcbind_enable="YES"
     service rpcbind restart
