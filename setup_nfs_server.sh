@@ -7,6 +7,7 @@ set -e
 # --- Usage check first ---
 if [ $# -lt 2 ]; then
     echo "Usage: $0 EXPORT_DIR client1 [client2 ...]"
+    echo "Exampe: $0 /mnt/nfs_mem r1"
     exit 1
 fi
 
