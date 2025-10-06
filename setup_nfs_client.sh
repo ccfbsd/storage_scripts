@@ -8,7 +8,7 @@ MOUNT_DIR=${3:-/mnt/nfs}
 
 if [ -z "${SERVER}" ]; then
     echo "Usage: $0 SERVER_IP [EXPORT_DIR] [MOUNT_DIR]"
-    echo "Exampe: $0 s1 /mnt/nfs_mem /mnt/nfs"
+    echo "Exampe: $0 s1 [/mnt/nfs_mem] [/mnt/nfs]"
     exit 1
 fi
 
