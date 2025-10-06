@@ -16,6 +16,16 @@ shift
 CLIENTS="$@"
 EXPORT_SIZE=6G          # default volumn size
 
+# Detect node type (Linux/FreeBSD specific path, fallback unknown)
+if [ -x /usr/libexec/emulab/nodetype ]; then
+    NODE_TYPE=$(/usr/libexec/emulab/nodetype)
+elif [ -x /usr/local/etc/emulab/nodetype ]; then
+    NODE_TYPE=$(/usr/local/etc/emulab/nodetype)
+else
+    NODE_TYPE="unknown"
+    echo ">>> Warning: nodetype command not found, using 'unknown'"
+fi
+
 echo ">>> Setting up NFS export: ${EXPORT_DIR} for clients: ${CLIENTS}"
 
 # Detect OS
@@ -94,3 +104,13 @@ else
 fi
 
 df -h "${EXPORT_DIR}"
+
+log_name="${EXPORT_DIR}/${NODE_TYPE}_nfs_server.info"
+
+uname -v | tee ${log_name}
+sysctl net.inet.tcp.functions_default | tee -a ${log_name}
+# Don't cache ssthresh from previous connection
+sysctl net.inet.tcp.hostcache.enable=0 | tee -a ${log_name}
+# force to close the control socket after 4 seconds
+sysctl net.inet.tcp.msl=2000 | tee -a ${log_name}
+sysctl net.inet.tcp.cc.algorithm | tee -a ${log_name}
