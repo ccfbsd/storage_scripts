@@ -34,6 +34,8 @@ echo ">>> Detected OS: $OS"
 
 # Ensure export directory exists
 mkdir -p "${EXPORT_DIR}"
+log_name="${EXPORT_DIR}/${NODE_TYPE}_nfs_server.info"
+uname -v | tee ${log_name}
 
 # OS-specific setup
 if [ "$OS" = "FreeBSD" ]; then
@@ -69,12 +71,18 @@ if [ "$OS" = "FreeBSD" ]; then
     echo ">>> NFS server ready. Exports:"
     showmount -e
 
+	sysctl net.inet.tcp.functions_default | tee -a ${log_name}
+	# Don't cache ssthresh from previous connection
+	sysctl net.inet.tcp.hostcache.enable=0 | tee -a ${log_name}
+	# force to close the control socket after 4 seconds
+	sysctl net.inet.tcp.msl=2000 | tee -a ${log_name}
+	sysctl net.inet.tcp.cc.algorithm | tee -a ${log_name}
+
 elif [ "$OS" = "Linux" ]; then
     echo ">>> Using Linux NFS setup"
 
-    # tmpfs is builtin, no need to modprobe
-    # Mount tmpfs
-    mount -t tmpfs -o size="${EXPORT_SIZE}" tmpfs "${EXPORT_DIR}" || true
+    # DO NOT mount tmpfs here; use permanent filesystem
+    # mount -t tmpfs -o size="${EXPORT_SIZE}" tmpfs "${EXPORT_DIR}" || true
 
     # Write /etc/exports (Linux)
     {
@@ -106,13 +114,3 @@ else
 fi
 
 df -h "${EXPORT_DIR}"
-
-log_name="${EXPORT_DIR}/${NODE_TYPE}_nfs_server.info"
-
-uname -v | tee ${log_name}
-sysctl net.inet.tcp.functions_default | tee -a ${log_name}
-# Don't cache ssthresh from previous connection
-sysctl net.inet.tcp.hostcache.enable=0 | tee -a ${log_name}
-# force to close the control socket after 4 seconds
-sysctl net.inet.tcp.msl=2000 | tee -a ${log_name}
-sysctl net.inet.tcp.cc.algorithm | tee -a ${log_name}
